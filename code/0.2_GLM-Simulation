@@ -1,21 +1,18 @@
+### GLM Simulation Code
+
+
+## Import libraries
 library(tidyverse)
 library(gridExtra) # Make plots align together
-```
 
-## Exploratory data analysis
+## Import data
+data <- read.csv("Opportunistic-surveys-COPI.csv")
 
-```{r}
-data <- read.csv("F:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/2.Data/20212022_COPI_PresAbsData_21Threshold_Final.csv")
-data.HOMA <- read.csv("F:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/2.Data/20212022_HOMA_PresAbsData_21Threshold_Final.csv")
-
-# For this analysis - better to have only 63 absences so they match 1:1 with pres.
-# Best way?? Can randomly remove them. They are already filtered to not within 500 m
+### For this analysis - better to have only 63 absences so they match 1:1 with pres.
+### Best way?? Can randomly remove them. They are already filtered to not within 500 m
 
 
-cor(data %>% select(Pres, slope, max.sum, sum.days.above.21, min.wint, wint.days.below.neg5,
-           avgEVI.lag, sden.mean, perm, wint.days.above.0, ID, x.x, y.x))
-
-# For loop to randomize the points I have
+### For loop to randomize the points I have
 times <- 100 # iterations
 list.aa <- list()
 list.ab <- list()
@@ -96,22 +93,18 @@ rglm.bb.df <- rglm.bb %>% mutate(model = "bb")
 
 rglm.df <- rglm.aa.df %>% add_row(rglm.ab.df) %>% add_row(rglm.bb.df)
 
-# Save randomly generated models for consistency to look back!!
-
+### Save randomly generated models for consistency to review
 # df summary
-write.csv(rglm.df, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLMsummary.csv")
+#write.csv(rglm.df, "XXXXX.csv")
 
 # full list
-saveRDS(list, file="D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLMFullList.RData")
-rlist::list.save(list, 'D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLMFullList.sv2.RData')
-# read back in with list.load function from same package
+#saveRDS(list, file="XXX.RData")
+#rlist::list.save(list, 'XXX.RData')
+### read back in with list.load function from same package
 
 
-# maybe also make one with the saved versions of p values and things we might want???? not sure
-# graphs and figures of the relationships??
-```
+### Pull summary stats from the saved models
 
-```{r}
 # make empty dataframes
 slope.sum <- data.frame("slope" = double(), "slope.sd" = double(),"slope.p" = double())
 maxsum.sum <- data.frame("max.sum" = double(),"max.sum.sd" = double(),"max.sum.p" = double())
@@ -176,21 +169,13 @@ mean(maxsum.sum$max.sum, na.rm = T)
 sd(maxsum.sum$max.sum, na.rm = T)
 mean(maxsum.sum$max.sum.p, na.rm = T)
 sd(maxsum.sum$max.sum.p, na.rm = T)
-```
-```{r eval = F}
-# save the summaries!!!
-write.csv(slope.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_Slope.csv")
-write.csv(maxsum.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_MaxSummerTemp.csv")
-write.csv(sumdays21.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_SummerDaysAbove21.csv")
-write.csv(minwin.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_MinimumWinterTemp.csv")
-write.csv(windaysneg5.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_WinterDaysBelowNeg5.csv")
-write.csv(avgEVI.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_AvgEVIPreviousSummer.csv")
-write.csv(sden.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_AverageSnowDensity.csv")
-write.csv(perm.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_PermafrostPercentage.csv")
-write.csv(windaysabove0.sum, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_COPI_PresAbsData_GLM_WinterDaysAbove0.csv")
-```
 
-```{r}
+
+## Save the summaries (ex. code below)
+#write.csv(slope.sum, "XXXX.csv")
+
+
+### Summarize model outputs
 rglm.df %>% summarize(AIC.mean = mean(AIC), slope = sum(slope),         # 3/3 models
                       max.sum = sum(max.sum),                           # 1/3 models
                       sum.days.above.21 = sum(sum.days.above.21),       # 2/3 models
@@ -207,323 +192,3 @@ rglm.df %>% summarize(AIC.mean = mean(AIC), slope = sum(slope),         # 3/3 mo
                               sum / 200, sum / 100)))
 
 
-
-
-data.1.1 <- read.csv("20212022_COPI_PresAbsData_21Threshold_FinalSubsetted.csv")
-
-# Select columns of interest
-det <- data.sub %>% select(Pres, slope, max.sum, sum.days.above.21, min.wint, wint.days.below.neg5, avgEVI.lag, sden.mean, perm, wint.days.above.0, ID, x.x, x.y)
-
-# Look at correlation among variables
-cor(det) # corr > 0.6 for:
-# min.winter and wint.days.above.0
-# max.sum and winter days above 9
-# max sum and min winter
-```
-
-```{r}
-# make boxplots of the distribution of each of these variables (with a side-by-side for any that I ended up needing to transform)
-a <- det %>% ggplot(aes(x = slope)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("a)") + #add label
-labs(x = "Slope") + #label x axis
-theme_classic() #set theme
-
-b <- det %>% ggplot(aes(x = max.sum)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("b)") + #add label
-labs(x = "Maximum Summer Temp") + #label x axis
-theme_classic() #set theme
-
-c <- det %>% ggplot(aes(x = sum.days.above.21)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("c)") + #add label
-labs(x = "Summer Days Above 21C") + #label x axis
-theme_classic() #set theme
-
-d <- det %>% ggplot(aes(x = min.wint)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("d)") + #add label
-labs(x = "Minimum Winter Temp") + #label x axis
-theme_classic() #set theme
-
-e <- det %>% ggplot(aes(x = wint.days.below.neg5)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("e)") + #add label
-labs(x = "Days Below -5C") + #label x axis
-theme_classic() #set theme
-
-f <- det %>% ggplot(aes(x = avgEVI.lag)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("f)") + #add label
-labs(x = "Average EVI (Previous Year)") + #label x axis
-theme_classic() #set theme
-
-g <- det %>% ggplot(aes(x = sden.mean)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("g)") + #add label
-labs(x = "Average Snow Density") + #label x axis
-theme_classic() #set theme
-
-h <- det %>% ggplot(aes(x = perm)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("h)") + #add label
-labs(x = "Permafrost") + #label x axis
-theme_classic() #set theme
-
-i <- det %>% ggplot(aes(x = wint.days.above.0)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("i)") + #add label
-labs(x = "Winter Days >0C") + #label x axis
-theme_classic() #set theme
-
-grid.arrange(a,b,c,d,e,f,g,h,i, ncol = 3) #arrange plots in one figure
-```
-Boxplots of adjusted data
-
-```{r}
-j <- det %>% ggplot(aes(x = slope)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("a)") + #add label
-labs(x = "sqrt(Slope)") + #label x axis
-theme_classic() #set theme
-
-k <- det %>% ggplot(aes(x = max.sum)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("b)") + #add label
-labs(x = "Max Summer Temp") + #label x axis
-theme_classic() #set theme
-
-l <- det %>% ggplot(aes(x = sum.days.above.21)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("c)") + #add label
-labs(x = "ln(Summer Days Above 21C)") + #label x axis
-theme_classic() #set theme
-
-m <- det %>% ggplot(aes(x = min.wint)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("d)") + #add label
-labs(x = "ln(Min Winter Temp + 100)") + #label x axis
-theme_classic() #set theme
-
-n <- det %>% ggplot(aes(x = wint.days.below.neg5)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("e)") + #add label
-labs(x = "Days Below -5C") + #label x axis
-theme_classic() #set theme
-
-o <- det %>% ggplot(aes(x = avgEVI.lag)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("f)") + #add label
-labs(x = "Average EVI (Previous Year)") + #label x axis
-theme_classic() #set theme
-
-p <- det %>% ggplot(aes(x = sden.mean)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("g)") + #add label
-labs(x = "Average Snow Density") + #label x axis
-theme_classic() #set theme
-
-q <- det %>% ggplot(aes(x = perm)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("h)") + #add label
-labs(x = "Permafrost") + #label x axis
-theme_classic() #set theme
-
-r <- det %>% ggplot(aes(x = wint.days.above.0)) + #set aesthetics
-geom_boxplot() + #make boxplot
-ggtitle("f)") + #add label
-labs(x = "Winter Days >0C") + #label x axis
-theme_classic() #set theme
-
-grid.arrange(j,k,l,m,n,o,p,q,r, ncol = 3) #arrange plots in one figure
-```
-
-
-```{r}
-# Scale data to a mean of 0 and sd of 1
-det.sc <- data %>% rename(x = x.x, y = y.x) %>% select(x,y, ID) %>%
-  left_join(det, ., by = ("ID")) %>% select(!ID) %>% 
-  mutate_at(c("slope", "max.sum", "sum.days.above.21", "min.wint",
-              "wint.days.below.neg5", "avgEVI.lag", "sden.mean", "perm",
-              "wint.days.above.0"), ~(scale(.) %>% as.vector))
-det.sc
-
-det.unscale.dat <- det  %>% 
-  summarize(slope.mean = mean(slope), slope.sd = sd(slope), 
-         max.sum.mean = mean(max.sum), max.sum.sd = sd(max.sum),
-         sum.days.above.21.mean = mean(sum.days.above.21), 
-         sum.days.above.21.sd = sd(sum.days.above.21),
-         min.wint.mean = mean(min.wint), min.wint.sd = sd(min.wint),
-         wint.days.below.neg5.mean = mean(wint.days.below.neg5), 
-         wint.days.below.neg5.sd = sd(wint.days.below.neg5),
-         avgEVI.lag.mean = mean(avgEVI.lag, na.rm = T), 
-         avgEVI.lagsd = sd(avgEVI.lag, na.rm = T),
-         sden.mean.mean = mean(sden.mean), sden.mean.sd = sd(sden.mean),
-         perm.mean = mean(perm), perm.sd = sd(perm),
-         wint.days.above.0.mean = mean(wint.days.above.0), 
-         wint.days.above.0.sd = sd(wint.days.above.0))
-det.unscale.dat
-
-#write.csv(det.unscale.dat, "MeanstDev_Unscaled_20212022_COPI_PresAbsData_subsetted.csv")
-```
-
-## HOMA Version
-
-```{r}
-# Read in data
-data.HOMA <- read.csv("D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/2.Data/20212022_HOMA_PresAbsData_21Threshold_Final.csv")
-
-# For this analysis - better to have only 33 absences so they match 1:1 with pres.
-# Best way?? Can randomly remove them. They are already filtered to not within 500 m
-
-
-cor(data.HOMA %>% dplyr::select(Pres, slope, max.sum, sum.days.above.21, wint.days.below.neg5, ros,
-           avgEVI.lag, sdepth.max, ID, x.x, y.x))
-
-# For loop to randomize the points I have
-times <- 100 # iterations
-list.cc <- list()
-list.dd <- list()
-
-rglm.cc <- data.frame("AIC" = double(), "slope" = logical(), 
-                      "max.sum" = logical(),
-                      "sum.days.above.21"= logical(), 
-                      "ros"= logical(),
-                      "wint.days.below.neg5"= logical())
-
-rglm.dd <- data.frame("AIC" = double(), "slope" = logical(), 
-                      "max.sum" = logical(),
-                      "sum.days.above.21"= logical(),
-                      "wint.days.below.neg5"= logical(), 
-                      "avgEVI.lag"= logical(),
-                      "sdepth.max"= logical(), 
-                      "x"= logical(),
-                      "x^2"= logical())
-
-for(i in 1:times){
-  subset <- sample(1:nrow(data.HOMA[data.HOMA$Pres == 0,]), 33, replace = F)
-  data.sub <- data.HOMA[data.HOMA$Pres == 0,] %>% .[subset,] %>% 
-    add_row(data.HOMA[data.HOMA$Pres == 1,]) %>% 
-    select(Pres, slope, max.sum, sum.days.above.21, wint.days.below.neg5, ros,
-           avgEVI.lag, sdepth.max, ID, x.x, y.x) %>%
-    mutate_at(c("slope", "max.sum", "sum.days.above.21",
-              "wint.days.below.neg5", "ros", "avgEVI.lag", "sdepth.max"),
-              ~(scale(.) %>% as.vector))
-  
-  # run glm for this iteration
-  glm.cc <- glm(Pres ~ slope + max.sum + sum.days.above.21 + wint.days.below.neg5 + ros + avgEVI.lag,
-               family = binomial, data = data.sub)
-  glm.dd <- glm(Pres ~ slope + max.sum + sum.days.above.21 + wint.days.below.neg5 + avgEVI.lag + sdepth.max + x.x + x.x^2,
-               family = binomial, data = data.sub)
-  
-  # Perform backward stepwise selection using AIC
-  step_cc <- step(glm.cc, direction = "backward")
-  step_dd <- step(glm.dd, direction = "backward")
-  
-  # save everything in a list
-  list.cc[[i]] <- step_cc
-  list.dd[[i]] <- step_dd
-  
-  # save df of summary details for each
-  rglm.cc[i,] <- colnames(rglm.cc) %in% colnames(step_cc$model)
-  rglm.cc[i,] <- rglm.cc[i,] %>% mutate(AIC = step_cc$aic)
-    
-  rglm.dd[i,] <- colnames(rglm.dd) %in% colnames(step_dd$model) 
-  rglm.dd[i,] <- rglm.dd[i,] %>% mutate(AIC = step_dd$aic)
-}
-
-list.HOMA <- c(list.cc, list.dd)
-
-rglm.cc.df <- rglm.cc %>% mutate(model = "cc")
-rglm.dd.df <- rglm.dd %>% mutate(model = "dd")
-
-rglm.df.HOMA <- rglm.cc.df %>% mutate(avgEVI.lag = FALSE, sdepth.max = NA, x = NA, x.2 = NA) %>% 
-  add_row(rglm.dd.df)
-
-# Save randomly generated models for consistency to look back!!
-
-# df summary
-write.csv(rglm.df.HOMA, "D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_HOMA_PresAbsData_GLMsummary.csv")
-
-# full list
-saveRDS(list.HOMA, file="D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_HOMA_PresAbsData_GLMFullList.RData")
-rlist::list.save(list.HOMA, 'D:/PhD_Denali_Alpine_Wildlife/Chapter1_SpatiotemporalWildlifeOccupancy/3.Analysis/GLM/20212022_HOMA_PresAbsData_GLMFullList.sv2.RData')
-# read back in with list.load function from same package
-
-
-# maybe also make one with the saved versions of p values and things we might want???? not sure
-# graphs and figures of the relationships??
-
-```
-
-Continued... need to edit from COPI to HOMA
-
-Pres, slope, max.sum, sum.days.above.21, wint.days.below.neg5, ros,
-           avgEVI.lag, sdepth.max, ID, x.x, y.x
-
-```{r}
-# make empty dataframes
-slope.sum <- data.frame("slope" = double(), "slope.sd" = double(),"slope.p" = double())
-maxsum.sum <- data.frame("max.sum" = double(),"max.sum.sd" = double(),"max.sum.p" = double())
-sumdays21.sum <- data.frame("sum.days.above.21"= double(),"sum.days.above.21.sd"= double(),"sum.days.above.21.p"= double())
-windaysneg5.sum <- data.frame("wint.days.below.neg5"= double(),"wint.days.below.neg5.sd"= double(),"wint.days.below.neg5.p"= double())
-ros.sum <- data.frame("ros"= double(),"ros.sd"= double(),"ros.p"= double())
-avgEVI.sum <- data.frame("avgEVI.lag"= double(),"avgEVI.lag.sd"= double(),"avgEVI.lag.p"= double())
-sdepth.max.sum <- data.frame("sdepth.max"= double(), "sdepth.max.sd"= double(), "sdepth.max.p"= double())
-x.sum <- data.frame("x"= double(), "x.sd"= double(), "x.p"= double())
-x2.sum <- data.frame("x2"= double(), "x2.sd"= double(), "x2.p"= double())
-
-for(j in 1:length(list.HOMA)){
-  if("slope" %in% colnames(list.HOMA[[j]]$model)) {
-    slope.sum[j,"slope"] <- list.HOMA[[j]]$coefficients["slope"]                     # estimate
-    slope.sum[j,"slope.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["slope"] # std. error
-    slope.sum[j,"slope.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["slope"]    # p-value 
-  }
-  if("max.sum" %in% colnames(list.HOMA[[j]]$model)) {
-    maxsum.sum[j,"max.sum"] <- list.HOMA[[j]]$coefficients["max.sum"]                     # estimate
-    maxsum.sum[j,"max.sum.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["max.sum"] # std. error
-    maxsum.sum[j,"max.sum.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["max.sum"]    # p-value 
-  }
-  if("sum.days.above.21" %in% colnames(list.HOMA[[j]]$model)) {
-    sumdays21.sum[j,"sum.days.above.21"] <- list.HOMA[[j]]$coefficients["sum.days.above.21"]                     # estimate
-    sumdays21.sum[j,"sum.days.above.21.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["sum.days.above.21"] # std. error
-    sumdays21.sum[j,"sum.days.above.21.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["sum.days.above.21"]    # p-value 
-  }
-  if("ros" %in% colnames(list.HOMA[[j]]$model)) {
-    ros.sum[j,"ros"] <- list.HOMA[[j]]$coefficients["ros"]                     # estimate
-    ros.sum[j,"ros.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["ros"] # std. error
-    ros.sum[j,"ros.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["ros"]    # p-value 
-  }
-  if("wint.days.below.neg5" %in% colnames(list.HOMA[[j]]$model)) {
-    windaysneg5.sum[j,"wint.days.below.neg5"] <- list.HOMA[[j]]$coefficients["wint.days.below.neg5"]                     # estimate
-    windaysneg5.sum[j,"wint.days.below.neg5.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["wint.days.below.neg5"] # std. error
-    windaysneg5.sum[j,"wint.days.below.neg5.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["wint.days.below.neg5"]    # p-value 
-  }
-  if("avgEVI.lag" %in% colnames(list.HOMA[[j]]$model)) {
-    avgEVI.sum[j,"avgEVI.lag"] <- list.HOMA[[j]]$coefficients["avgEVI.lag"]                     # estimate
-    avgEVI.sum[j,"avgEVI.lag.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["avgEVI.lag"] # std. error
-    avgEVI.sum[j,"avgEVI.lag.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["avgEVI.lag"]    # p-value 
-  }
-  if("sdepth.max" %in% colnames(list.HOMA[[j]]$model)) {
-    sdepth.max.sum[j,"sdepth.max"] <- list.HOMA[[j]]$coefficients["sdepth.max"]                     # estimate
-    sdepth.max.sum[j,"sdepth.max.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["sdepth.max"] # std. error
-    sdepth.max.sum[j,"sdepth.max.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["sdepth.max"]    # p-value 
-  }
-    if("x.mean" %in% colnames(list.HOMA[[j]]$model)) {
-    x.sum[j,"x"] <- list.HOMA[[j]]$coefficients["x"]                     # estimate
-    x.sum[j,"x.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["x"] # std. error
-    x.sum[j,"x.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["x"]    # p-value 
-    }
-    if("x2.mean" %in% colnames(list.HOMA[[j]]$model)) {
-    x2.sum[j,"x2"] <- list.HOMA[[j]]$coefficients["x2"]                     # estimate
-    x2.sum[j,"x2.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["x2"] # std. error
-    x2.sum[j,"x2.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["x2"]    # p-value 
-  }
-}
-
-# summary stats
-mean(maxsum.sum$max.sum, na.rm = T)
-sd(maxsum.sum$max.sum, na.rm = T)
-mean(maxsum.sum$max.sum.p, na.rm = T)
-sd(maxsum.sum$max.sum.p, na.rm = T)

@@ -20,9 +20,9 @@ library(jagsUI)     # interfaces with JAGS
 library(mcmcOutput) # interprets results
 
 # Import and organize data
-data.COPI <- read.csv("data/Ramdomized-talus-surveys-COPI.csv") %>% 
+HOMA <- read.csv("data/Ramdomized-talus-surveys-HOMA.csv") %>% 
   mutate(perm = ifelse(perm == 104, 0, perm))  # 104 classification stands for barren, a non-permafrost region
-climate.COPI <- as.data.frame(scale(data.COPI[,c("ros", "slope", "evi", "heat", "cold")]))
+HOMAdet_data <- as.data.frame(scale(data.HOMA[,c("ros", "slope", "evi", "heat", "cold")]))
 
 # Fit the model
 J <- 83
@@ -30,8 +30,8 @@ K <- 3
 
 
 # Full SEM Model with the posterior predictive checks coded in
-HOMA.climate.jags_data = list(J = J, K = K, y = HOMAdet_data[, c("Scat", "Indiv", "Vocal")], 
-                              Z = ifelse(rowSums(HOMAdet_data[, c("Scat", "Indiv", "Vocal")], na.rm = T) > 0, 1, NA),
+HOMA.climate.jags_data = list(J = J, K = K, y = HOMA[, c("Scat", "Indiv", "Vocal")], 
+                              Z = ifelse(rowSums(HOMA[, c("Scat", "Indiv", "Vocal")], na.rm = T) > 0, 1, NA),
                               ros = HOMAdet_data$ros, slope = HOMAdet_data$slope,
                               evi = HOMAdet_data$evi, heat = HOMAdet_data$heat,
                               cold = HOMAdet_data$cold)

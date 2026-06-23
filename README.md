@@ -1,7 +1,8 @@
 # From peaks to patches: Hierarchical climate filtering in collared pikas and hoary marmots
 ### Jennifer L. Wall and Jedediah F. Brodie
+### Ecology
 
-#### Ecology
+
 #### Accepted: June 18, 2026
 #### Corresponding author: Jennifer Wall, jwall0602@gmail.com
 

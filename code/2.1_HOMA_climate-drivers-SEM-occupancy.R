@@ -22,7 +22,7 @@ library(mcmcOutput) # interprets results
 # Import and organize data
 HOMA <- read.csv("data/Ramdomized-talus-surveys-HOMA.csv") %>% 
   mutate(perm = ifelse(perm == 104, 0, perm))  # 104 classification stands for barren, a non-permafrost region
-HOMAdet_data <- as.data.frame(scale(data.HOMA[,c("ros", "slope", "evi", "heat", "cold")]))
+HOMAdet_data <- as.data.frame(scale(HOMA[,c("ros", "slope", "evi", "heat", "cold")]))
 
 # Fit the model
 J <- 83

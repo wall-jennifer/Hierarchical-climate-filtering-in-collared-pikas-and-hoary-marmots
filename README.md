@@ -10,7 +10,7 @@ Climate changes are amplified in boreal regions and can disproportionately impac
 
 ## Code
   1. [0.1_prior-estimation.R](/code/0.1_prior-estimation.R) Prior development and visualization of weakly informative priors.
-  2. [Link to data]: Code for the simulation I ran of the various GLMs.
+  2. [0.2_GLM-Simulation.R](/code/0.2_GLM-Simulation.R): Code for the simulation I ran of the various GLMs.
   3. [0.3_SEM-occupancy-simulation.Rmd](/code/0.3_SEM-occupancy-simulation.Rmd): Simulated Bayesian causal structural equation / occupancy model. This model uses multiple equations to represent relationships between observed and latent variables while simultaneously accounting for imperfect detection of species and calculates detection probabilities using 3-4 different sign types from our focal species as an alternative to repeated site visits.
   4. Collared pika *(Ochotona collaris)* models:
      

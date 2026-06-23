@@ -1,5 +1,8 @@
 ### GLM Simulation Code
 
+### For this analysis - better to have only 63 absences so they match 1:1 with pres.
+### Best way?? Can randomly remove them. They are already filtered to not within 500 m
+
 
 ## Import libraries
 library(tidyverse)
@@ -8,10 +11,7 @@ library(gridExtra) # Make plots align together
 ## Import data
 data <- read.csv("Opportunistic-surveys-COPI.csv")
 
-### For this analysis - better to have only 63 absences so they match 1:1 with pres.
-### Best way?? Can randomly remove them. They are already filtered to not within 500 m
-
-
+### Analaysis
 ### For loop to randomize the points I have
 times <- 100 # iterations
 list.aa <- list()
@@ -191,4 +191,152 @@ rglm.df %>% summarize(AIC.mean = mean(AIC), slope = sum(slope),         # 3/3 mo
                        ifelse((variable == "sum.days.above.21" | variable == "wint.days.below.neg5" | variable == "wint.days.above.0"), 
                               sum / 200, sum / 100)))
 
+### ------------------------------------------------------------------------------------------------------------------------------------
+### ------------------------------------------------- HOMA -----------------------------------------------------------------------------
+
+## HOMA Version
+
+# Read in data
+data.HOMA <- read.csv("data/Opportunistic-surveys-HOMA.csv")
+
+
+### Analysis
+### For loop to randomize the points I have
+times <- 100 # iterations
+list.cc <- list()
+list.dd <- list()
+
+rglm.cc <- data.frame("AIC" = double(), "slope" = logical(), 
+                      "max.sum" = logical(),
+                      "sum.days.above.21"= logical(), 
+                      "ros"= logical(),
+                      "wint.days.below.neg5"= logical())
+
+rglm.dd <- data.frame("AIC" = double(), "slope" = logical(), 
+                      "max.sum" = logical(),
+                      "sum.days.above.21"= logical(),
+                      "wint.days.below.neg5"= logical(), 
+                      "avgEVI.lag"= logical(),
+                      "sdepth.max"= logical(), 
+                      "x"= logical(),
+                      "x^2"= logical())
+
+for(i in 1:times){
+  subset <- sample(1:nrow(data.HOMA[data.HOMA$Pres == 0,]), 33, replace = F)
+  data.sub <- data.HOMA[data.HOMA$Pres == 0,] %>% .[subset,] %>% 
+    add_row(data.HOMA[data.HOMA$Pres == 1,]) %>% 
+    select(Pres, slope, max.sum, sum.days.above.21, wint.days.below.neg5, ros,
+           avgEVI.lag, sdepth.max, ID, x.x, y.x) %>%
+    mutate_at(c("slope", "max.sum", "sum.days.above.21",
+              "wint.days.below.neg5", "ros", "avgEVI.lag", "sdepth.max"),
+              ~(scale(.) %>% as.vector))
+  
+  # run glm for this iteration
+  glm.cc <- glm(Pres ~ slope + max.sum + sum.days.above.21 + wint.days.below.neg5 + ros + avgEVI.lag,
+               family = binomial, data = data.sub)
+  glm.dd <- glm(Pres ~ slope + max.sum + sum.days.above.21 + wint.days.below.neg5 + avgEVI.lag + sdepth.max + x.x + x.x^2,
+               family = binomial, data = data.sub)
+  
+  # Perform backward stepwise selection using AIC
+  step_cc <- step(glm.cc, direction = "backward")
+  step_dd <- step(glm.dd, direction = "backward")
+  
+  # save everything in a list
+  list.cc[[i]] <- step_cc
+  list.dd[[i]] <- step_dd
+  
+  # save df of summary details for each
+  rglm.cc[i,] <- colnames(rglm.cc) %in% colnames(step_cc$model)
+  rglm.cc[i,] <- rglm.cc[i,] %>% mutate(AIC = step_cc$aic)
+    
+  rglm.dd[i,] <- colnames(rglm.dd) %in% colnames(step_dd$model) 
+  rglm.dd[i,] <- rglm.dd[i,] %>% mutate(AIC = step_dd$aic)
+}
+
+list.HOMA <- c(list.cc, list.dd)
+
+rglm.cc.df <- rglm.cc %>% mutate(model = "cc")
+rglm.dd.df <- rglm.dd %>% mutate(model = "dd")
+
+rglm.df.HOMA <- rglm.cc.df %>% mutate(avgEVI.lag = FALSE, sdepth.max = NA, x = NA, x.2 = NA) %>% 
+  add_row(rglm.dd.df)
+
+### Save randomly generated models for consistency
+
+# df summary
+#write.csv(rglm.df.HOMA, "XXX.csv")
+
+# full list
+saveRDS(list.HOMA, file="XXX.RData")
+rlist::list.save(list.HOMA, 'XXX.RData')
+# read back in with list.load function from same package
+
+
+
+### Pull summary stats from the saved models
+
+# make empty dataframes
+slope.sum <- data.frame("slope" = double(), "slope.sd" = double(),"slope.p" = double())
+maxsum.sum <- data.frame("max.sum" = double(),"max.sum.sd" = double(),"max.sum.p" = double())
+sumdays21.sum <- data.frame("sum.days.above.21"= double(),"sum.days.above.21.sd"= double(),"sum.days.above.21.p"= double())
+windaysneg5.sum <- data.frame("wint.days.below.neg5"= double(),"wint.days.below.neg5.sd"= double(),"wint.days.below.neg5.p"= double())
+ros.sum <- data.frame("ros"= double(),"ros.sd"= double(),"ros.p"= double())
+avgEVI.sum <- data.frame("avgEVI.lag"= double(),"avgEVI.lag.sd"= double(),"avgEVI.lag.p"= double())
+sdepth.max.sum <- data.frame("sdepth.max"= double(), "sdepth.max.sd"= double(), "sdepth.max.p"= double())
+x.sum <- data.frame("x"= double(), "x.sd"= double(), "x.p"= double())
+x2.sum <- data.frame("x2"= double(), "x2.sd"= double(), "x2.p"= double())
+
+for(j in 1:length(list.HOMA)){
+  if("slope" %in% colnames(list.HOMA[[j]]$model)) {
+    slope.sum[j,"slope"] <- list.HOMA[[j]]$coefficients["slope"]                     # estimate
+    slope.sum[j,"slope.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["slope"] # std. error
+    slope.sum[j,"slope.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["slope"]    # p-value 
+  }
+  if("max.sum" %in% colnames(list.HOMA[[j]]$model)) {
+    maxsum.sum[j,"max.sum"] <- list.HOMA[[j]]$coefficients["max.sum"]                     # estimate
+    maxsum.sum[j,"max.sum.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["max.sum"] # std. error
+    maxsum.sum[j,"max.sum.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["max.sum"]    # p-value 
+  }
+  if("sum.days.above.21" %in% colnames(list.HOMA[[j]]$model)) {
+    sumdays21.sum[j,"sum.days.above.21"] <- list.HOMA[[j]]$coefficients["sum.days.above.21"]                     # estimate
+    sumdays21.sum[j,"sum.days.above.21.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["sum.days.above.21"] # std. error
+    sumdays21.sum[j,"sum.days.above.21.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["sum.days.above.21"]    # p-value 
+  }
+  if("ros" %in% colnames(list.HOMA[[j]]$model)) {
+    ros.sum[j,"ros"] <- list.HOMA[[j]]$coefficients["ros"]                     # estimate
+    ros.sum[j,"ros.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["ros"] # std. error
+    ros.sum[j,"ros.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["ros"]    # p-value 
+  }
+  if("wint.days.below.neg5" %in% colnames(list.HOMA[[j]]$model)) {
+    windaysneg5.sum[j,"wint.days.below.neg5"] <- list.HOMA[[j]]$coefficients["wint.days.below.neg5"]                     # estimate
+    windaysneg5.sum[j,"wint.days.below.neg5.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["wint.days.below.neg5"] # std. error
+    windaysneg5.sum[j,"wint.days.below.neg5.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["wint.days.below.neg5"]    # p-value 
+  }
+  if("avgEVI.lag" %in% colnames(list.HOMA[[j]]$model)) {
+    avgEVI.sum[j,"avgEVI.lag"] <- list.HOMA[[j]]$coefficients["avgEVI.lag"]                     # estimate
+    avgEVI.sum[j,"avgEVI.lag.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["avgEVI.lag"] # std. error
+    avgEVI.sum[j,"avgEVI.lag.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["avgEVI.lag"]    # p-value 
+  }
+  if("sdepth.max" %in% colnames(list.HOMA[[j]]$model)) {
+    sdepth.max.sum[j,"sdepth.max"] <- list.HOMA[[j]]$coefficients["sdepth.max"]                     # estimate
+    sdepth.max.sum[j,"sdepth.max.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["sdepth.max"] # std. error
+    sdepth.max.sum[j,"sdepth.max.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["sdepth.max"]    # p-value 
+  }
+    if("x.mean" %in% colnames(list.HOMA[[j]]$model)) {
+    x.sum[j,"x"] <- list.HOMA[[j]]$coefficients["x"]                     # estimate
+    x.sum[j,"x.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["x"] # std. error
+    x.sum[j,"x.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["x"]    # p-value 
+    }
+    if("x2.mean" %in% colnames(list.HOMA[[j]]$model)) {
+    x2.sum[j,"x2"] <- list.HOMA[[j]]$coefficients["x2"]                     # estimate
+    x2.sum[j,"x2.sd"] <- coef(summary(list.HOMA[[j]]))[,"Std. Error"]["x2"] # std. error
+    x2.sum[j,"x2.p"] <- coef(summary(list.HOMA[[j]]))[,"Pr(>|z|)"]["x2"]    # p-value 
+  }
+}
+
+## Summary stats
+mean(maxsum.sum$max.sum, na.rm = T)
+sd(maxsum.sum$max.sum, na.rm = T)
+mean(maxsum.sum$max.sum.p, na.rm = T)
+sd(maxsum.sum$max.sum.p, na.rm = T)
 

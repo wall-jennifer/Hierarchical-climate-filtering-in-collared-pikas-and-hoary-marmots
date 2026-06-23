@@ -25,6 +25,10 @@ Climate changes are amplified in boreal regions and can disproportionately impac
       - [2.3_HOMA_climate-drivers-SEM-occupancy-simplified](code/2.3_HOMA_climate-drivers-SEM-occupancy-simplified.R): Hierarchical occupancy model nested within a structural equation model with latent and observed variables.
     
 ## Data
+  1. Opportunistic audiovisual observations 
+  2. Randomized talus plot surveys
+      - [Collared pika data](data/Talus-survey-COPI.csv)
+      - [Hoary marmot data](data/Talus-survey-HOMA.csv)
 
 ## Variables
 

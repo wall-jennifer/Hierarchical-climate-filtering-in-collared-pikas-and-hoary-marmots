@@ -7,7 +7,6 @@
 # Metadata:
 # Visibility in km, >2 km visibility listed as 2
 # Cloud: in % cloud cover of visible sky
-# Wind: scaled from ________
 # Talus.Score: talus scored on stability from 1 - 5
 # Avg. Diameter: in cm, avg. scores, for small and large rocks, we chose predominant rock size (whichever was >50%)
 # Vegetation: scored based on Daubenmire's scale-- 0 = 0, trace = 1, 1-5 = 2, 5-25 = 3, 25-50 = 4, 50-75 = 5, 75-95 = 6, 95-99 = 7, 100 = 8

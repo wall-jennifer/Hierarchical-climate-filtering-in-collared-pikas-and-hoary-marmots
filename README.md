@@ -27,8 +27,8 @@ Climate changes are amplified in boreal regions and can disproportionately impac
 ## Data
   1. Opportunistic audiovisual observations 
   2. Randomized talus plot surveys
-      - [Collared pika data](data/Talus-surveys-COPI.csv)
-      - [Hoary marmot data](data/Talus-surveys-HOMA.csv)
+      - [Collared pika data](data/Randomized-talus-surveys-COPI.csv)
+      - [Hoary marmot data](data/Randomized-talus-surveys-HOMA.csv)
 
 ## Variables
 

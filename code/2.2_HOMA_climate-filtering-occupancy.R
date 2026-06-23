@@ -5,12 +5,9 @@
 
 
 # Metadata:
-# Visibility in km, >2 km visibility listed as 2
 # Cloud: in % cloud cover of visible sky
-# Wind: scaled from ________
-# Talus.Score: talus scored on stability from 1 - 5
 # Avg. Diameter: in cm, avg. scores, for small and large rocks, we chose predominant rock size (whichever was >50%)
-# Vegetation: scored based on Daubenmire's scale-- 0 = 0, trace = 1, 1-5 = 2, 5-25 = 3, 25-50 = 4, 50-75 = 5, 75-95 = 6, 95-99 = 7, 100 = 8
+# Vegetation: scored based on Daubenmire's scale-- 0 = 0, trace = 1, 1-5 = 2, 5-25 = 3, 25-50 = 4, 50-75 = 5, 75-95 = 6, 95-99 = 7, 100 = 8 (gram and forb summed for gramforb measure)
 # Species: X for not present, P for present, O for old, F for fresh
 
 
@@ -25,19 +22,9 @@ library(jagsUI)     # interfaces with JAGS
 library(mcmcOutput) # interprets results
 
 # Import and organize data
-HOMA <- read.csv("3.Analysis/Talussurveys_20212022_HOMA_2025FinalVersion.csv") %>% 
-  select(-X, -ID) %>% pivot_wider(names_from = "Type", values_from = "Obs") %>% 
-  mutate(Scat = as.integer(ifelse(Scat >= 1, 1, 0)), row_num = row_number())
-
-HOMAdet_data <- as.data.frame(scale(HOMA[,c("cloud", "avgdiam", "Wind", "Talus.Score", "gram", 
-                                          "forb", "gramforb", "snow.depth", "slope", "perm", "ros", 
-                                          "sum.days.over.21", "wint.days.below.neg5", "max.sum",
-                                          "min.wint", "wint.days.above.0", "evi")])) %>% 
-  mutate(row_num = row_number()) %>% 
-  left_join(HOMA[,c("row_num", "Sp", "y", "x", "doy", "Year", "Month", "Day", "Start", 
-                       "Indiv", "Scat", 'Vocal')], ., by = "row_num") %>% 
-  filter(!is.na(avgdiam) & !is.na(gramforb))
-# filtered out the rows with NA values (3 in total) left with 83 sites
+HOMA <- read.csv("data/Ramdomized-talus-surveys-HOMA.csv") %>% 
+  mutate(perm = ifelse(perm == 104, 0, perm))  # 104 classification stands for barren, a non-permafrost region
+HOMAdet_data <- as.data.frame(scale(HOMA[,c("cloud", "avgdiam", "gramforb")]))
 
 # Fit the model
 J <- 83
